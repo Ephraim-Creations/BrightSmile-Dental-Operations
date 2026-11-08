@@ -1,0 +1,12 @@
+node_modules/
+dist/
+client/dist/
+server/dist/
+.env
+.env.local
+server/.env
+dental_clinic.sqlite-shm
+dental_clinic.sqlite-wal
+.DS_Store
+*.tsbuildinfo
+.vercel

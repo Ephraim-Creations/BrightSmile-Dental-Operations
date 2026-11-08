@@ -1,0 +1,22 @@
+{
+  "name": "dental-clinic-system",
+  "version": "1.0.0",
+  "description": "Full-stack Dental Clinic Website and Appointment Management System",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix server run build && npm --prefix client run build",
+    "start": "node server/dist/index.js",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server run test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
