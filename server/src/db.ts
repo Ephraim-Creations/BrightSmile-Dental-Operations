@@ -8,44 +8,14 @@ import { wasmBinaryBuffer } from './wasm.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const wasmBinary = wasmBinaryBuffer.buffer.slice(
-  wasmBinaryBuffer.byteOffset,
-  wasmBinaryBuffer.byteOffset + wasmBinaryBuffer.byteLength
-) as ArrayBuffer;
-
-const SQL = await initSqlJs({
-  wasmBinary,
-});
-
-// Database file path
-let dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../dental_clinic.sqlite');
-
-if (process.env.VERCEL && !process.env.DATABASE_PATH) {
-  const tmpDbPath = path.join('/tmp', 'dental_clinic.sqlite');
-  try {
-    if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
-      fs.copyFileSync(dbPath, tmpDbPath);
-    }
-  } catch (err) {
-    console.warn('[Database] Could not copy SQLite database to /tmp:', err);
-  }
-  dbPath = tmpDbPath;
-}
-
-// Load existing database file if exists
-let sqliteInstance: any;
-try {
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath);
-    sqliteInstance = new SQL.Database(fileBuffer);
-  } else {
-    sqliteInstance = new SQL.Database();
-  }
-} catch {
-  sqliteInstance = new SQL.Database();
-}
+let SQL: any = null;
+let sqliteInstance: any = null;
+let dbPath: string = '';
+let isInitialized = false;
+let initPromise: Promise<void> | null = null;
 
 function persist() {
+  if (!sqliteInstance || !dbPath) return;
   try {
     const data = sqliteInstance.export();
     const buffer = Buffer.from(data);
@@ -61,11 +31,14 @@ export interface RunResult {
 }
 
 export class StatementWrapper {
-  constructor(private sql: string, private sqlDb: any) {}
+  constructor(private sql: string) {}
 
   get(...params: any[]): any {
+    if (!sqliteInstance) {
+      throw new Error('Database is not initialized. Ensure initDatabase() has completed.');
+    }
     const flatParams = params.flat();
-    const stmt = this.sqlDb.prepare(this.sql);
+    const stmt = sqliteInstance.prepare(this.sql);
     try {
       if (flatParams.length > 0) {
         stmt.bind(flatParams);
@@ -81,8 +54,11 @@ export class StatementWrapper {
   }
 
   all(...params: any[]): any[] {
+    if (!sqliteInstance) {
+      throw new Error('Database is not initialized. Ensure initDatabase() has completed.');
+    }
     const flatParams = params.flat();
-    const stmt = this.sqlDb.prepare(this.sql);
+    const stmt = sqliteInstance.prepare(this.sql);
     const results: any[] = [];
     try {
       if (flatParams.length > 0) {
@@ -98,16 +74,19 @@ export class StatementWrapper {
   }
 
   run(...params: any[]): RunResult {
+    if (!sqliteInstance) {
+      throw new Error('Database is not initialized. Ensure initDatabase() has completed.');
+    }
     const flatParams = params.flat();
     if (flatParams.length > 0) {
-      this.sqlDb.run(this.sql, flatParams);
+      sqliteInstance.run(this.sql, flatParams);
     } else {
-      this.sqlDb.run(this.sql);
+      sqliteInstance.run(this.sql);
     }
-    const changes = this.sqlDb.getRowsModified();
+    const changes = sqliteInstance.getRowsModified();
     let lastInsertRowid = 0;
     try {
-      const idRes = this.sqlDb.exec('SELECT last_insert_rowid() as id');
+      const idRes = sqliteInstance.exec('SELECT last_insert_rowid() as id');
       if (idRes.length > 0 && idRes[0].values.length > 0) {
         lastInsertRowid = Number(idRes[0].values[0][0]);
       }
@@ -120,20 +99,69 @@ export class StatementWrapper {
 
 export const db = {
   pragma(_str: string) {
+    if (!sqliteInstance) return;
     try {
       sqliteInstance.exec(`PRAGMA ${_str};`);
     } catch {}
   },
   exec(sql: string) {
+    if (!sqliteInstance) return;
     sqliteInstance.exec(sql);
     persist();
   },
   prepare(sql: string) {
-    return new StatementWrapper(sql, sqliteInstance);
+    return new StatementWrapper(sql);
   },
 };
 
-export function initDatabase() {
+export async function initDatabase(): Promise<void> {
+  if (isInitialized) return;
+  if (!initPromise) {
+    initPromise = (async () => {
+      const wasmBinary = wasmBinaryBuffer.buffer.slice(
+        wasmBinaryBuffer.byteOffset,
+        wasmBinaryBuffer.byteOffset + wasmBinaryBuffer.byteLength
+      ) as ArrayBuffer;
+
+      SQL = await initSqlJs({
+        wasmBinary,
+      });
+
+      // Database file path
+      dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../dental_clinic.sqlite');
+
+      if (process.env.VERCEL && !process.env.DATABASE_PATH) {
+        const tmpDbPath = path.join('/tmp', 'dental_clinic.sqlite');
+        try {
+          if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
+            fs.copyFileSync(dbPath, tmpDbPath);
+          }
+        } catch (err) {
+          console.warn('[Database] Could not copy SQLite database to /tmp:', err);
+        }
+        dbPath = tmpDbPath;
+      }
+
+      // Load existing database file if exists
+      try {
+        if (fs.existsSync(dbPath)) {
+          const fileBuffer = fs.readFileSync(dbPath);
+          sqliteInstance = new SQL.Database(fileBuffer);
+        } else {
+          sqliteInstance = new SQL.Database();
+        }
+      } catch {
+        sqliteInstance = new SQL.Database();
+      }
+
+      createSchemaAndSeed();
+      isInitialized = true;
+    })();
+  }
+  await initPromise;
+}
+
+function createSchemaAndSeed() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

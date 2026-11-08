@@ -10,7 +10,7 @@ import settingRoutes from './src/routes/settings.js';
 async function runTests() {
   console.log('🧪 Starting Dental Clinic System End-to-End Test Suite...\n');
 
-  initDatabase();
+  await initDatabase();
 
   const app = express();
   app.use(cors());

@@ -23,8 +23,16 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 // Client build directory for serving public frontend
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
-// Initialize SQLite database & tables
-initDatabase();
+// Ensure SQLite database is fully initialized before processing any requests
+app.use(async (_req, _res, next) => {
+  try {
+    await initDatabase();
+    next();
+  } catch (err) {
+    console.error('[Database] Middleware initialization failed:', err);
+    next(err);
+  }
+});
 
 // CORS configuration for cookies & frontend communication
 app.use(
@@ -76,13 +84,17 @@ if (fs.existsSync(clientDistPath)) {
 }
 
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`\n======================================================`);
-    console.log(`🦷 BrightSmile Dental Clinic Full-Stack Application`);
-    console.log(`🌐 Public Website & API Live at: http://localhost:${PORT}`);
-    console.log(`🛡️ Admin Portal:                  http://localhost:${PORT}/admin`);
-    console.log(`🔒 Strictly Enforced Admin:        ephraimcreations254@gmail.com`);
-    console.log(`======================================================\n`);
+  initDatabase().then(() => {
+    app.listen(PORT, () => {
+      console.log(`\n======================================================`);
+      console.log(`🦷 BrightSmile Dental Clinic Full-Stack Application`);
+      console.log(`🌐 Public Website & API Live at: http://localhost:${PORT}`);
+      console.log(`🛡️ Admin Portal:                  http://localhost:${PORT}/admin`);
+      console.log(`🔒 Strictly Enforced Admin:        ephraimcreations254@gmail.com`);
+      console.log(`======================================================\n`);
+    });
+  }).catch((err) => {
+    console.error('Failed to initialize database on startup:', err);
   });
 }
 
