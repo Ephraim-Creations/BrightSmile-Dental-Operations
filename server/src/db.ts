@@ -3,11 +3,19 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { hashPassword } from './utils/crypto.js';
+import { wasmBinaryBuffer } from './wasm.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SQL = await initSqlJs();
+const wasmBinary = wasmBinaryBuffer.buffer.slice(
+  wasmBinaryBuffer.byteOffset,
+  wasmBinaryBuffer.byteOffset + wasmBinaryBuffer.byteLength
+) as ArrayBuffer;
+
+const SQL = await initSqlJs({
+  wasmBinary,
+});
 
 // Database file path
 let dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../dental_clinic.sqlite');
