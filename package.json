@@ -21,6 +21,7 @@
     "concurrently": "^9.1.2"
   },
   "dependencies": {
+    "@netlify/aws-lambda-compat": "^2.0.4",
     "serverless-http": "^4.0.0"
   }
 }
