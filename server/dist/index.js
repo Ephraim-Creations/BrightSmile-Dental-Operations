@@ -11,11 +11,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
 var __commonJS = (cb, mod) => function __require2() {
-  try {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  } catch (e) {
-    throw mod = 0, e;
-  }
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -15318,7 +15314,7 @@ var require_shams = __commonJS({
         return true;
       }
       var obj = {};
-      var sym = /* @__PURE__ */ Symbol("test");
+      var sym = Symbol("test");
       var symObj = Object(sym);
       if (typeof sym === "string") {
         return false;
@@ -15377,7 +15373,7 @@ var require_has_symbols = __commonJS({
       if (typeof origSymbol("foo") !== "symbol") {
         return false;
       }
-      if (typeof /* @__PURE__ */ Symbol("bar") !== "symbol") {
+      if (typeof Symbol("bar") !== "symbol") {
         return false;
       }
       return hasSymbolSham();
@@ -29419,7 +29415,7 @@ var require_range2 = __commonJS({
 var require_comparator = __commonJS({
   "../node_modules/jsonwebtoken/node_modules/semver/classes/comparator.js"(exports, module) {
     "use strict";
-    var ANY = /* @__PURE__ */ Symbol("SemVer ANY");
+    var ANY = Symbol("SemVer ANY");
     var Comparator = class _Comparator {
       static get ANY() {
         return ANY;
@@ -42304,7 +42300,6 @@ var StatementWrapper = class {
   constructor(sql) {
     this.sql = sql;
   }
-  sql;
   get(...params) {
     if (!sqliteInstance) {
       throw new Error("Database is not initialized. Ensure initDatabase() has completed.");
@@ -43381,11 +43376,11 @@ app.use(
 );
 app.use(import_express5.default.json());
 app.use((0, import_cookie_parser.default)());
-app.use("/api/auth", auth_default);
-app.use("/api/appointments", appointments_default);
-app.use("/api/services", services_default);
-app.use("/api/settings", settings_default);
-app.get("/api/health", (_req, res) => {
+app.use(["/api/auth", "/auth"], auth_default);
+app.use(["/api/appointments", "/appointments"], appointments_default);
+app.use(["/api/services", "/services"], services_default);
+app.use(["/api/settings", "/settings"], settings_default);
+app.get(["/api/health", "/health"], (_req, res) => {
   res.json({
     status: "ok",
     service: "BrightSmile Dental Clinic API",

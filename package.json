@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Full-stack Dental Clinic Website and Appointment Management System",
   "private": true,
+  "type": "module",
   "workspaces": [
     "client",
     "server"
@@ -18,5 +19,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "serverless-http": "^4.0.0"
   }
 }

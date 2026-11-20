@@ -52,14 +52,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/services', serviceRoutes);
-app.use('/api/settings', settingRoutes);
+// API Routes (mounted with /api prefix and direct prefix for proxy/serverless compatibility)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/appointments', '/appointments'], appointmentRoutes);
+app.use(['/api/services', '/services'], serviceRoutes);
+app.use(['/api/settings', '/settings'], settingRoutes);
 
 // Health check endpoint
-app.get('/api/health', (_req, res) => {
+app.get(['/api/health', '/health'], (_req, res) => {
   res.json({
     status: 'ok',
     service: 'BrightSmile Dental Clinic API',
