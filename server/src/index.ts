@@ -1,7 +1,7 @@
 import { app } from './app.js';
 import { initDatabase } from './db.js';
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 
 const isServerless = Boolean(
   process.env.VERCEL ||

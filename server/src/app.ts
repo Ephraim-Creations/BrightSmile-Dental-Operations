@@ -13,7 +13,7 @@ import settingRoutes from './routes/settings.js';
 dotenv.config();
 
 const app = express();
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8000';
 
 // Client build directory for serving public frontend
 const clientDistPath = fs.existsSync(path.resolve(process.cwd(), 'client/dist'))

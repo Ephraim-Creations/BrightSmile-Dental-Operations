@@ -43357,7 +43357,7 @@ var settings_default = router4;
 // server/src/app.ts
 import_dotenv2.default.config();
 var app = (0, import_express5.default)();
-var CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+var CLIENT_URL = process.env.CLIENT_URL || "http://localhost:8000";
 var clientDistPath = fs2.existsSync(path2.resolve(process.cwd(), "client/dist")) ? path2.resolve(process.cwd(), "client/dist") : path2.resolve(process.cwd(), "dist");
 app.use((req, _res, next) => {
   if (req.url && req.url.startsWith("/.netlify/functions/api")) {
@@ -43432,7 +43432,7 @@ app.use((err, _req, res, _next) => {
 });
 
 // server/src/index.ts
-var PORT = process.env.PORT || 8e3;
+var PORT = process.env.PORT || 8001;
 var isServerless = Boolean(
   process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
 );
