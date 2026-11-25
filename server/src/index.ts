@@ -13,16 +13,13 @@ import settingRoutes from './routes/settings.js';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 8000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // Client build directory for serving public frontend
-const clientDistPath = fs.existsSync(path.resolve(__dirname, '../../client/dist'))
-  ? path.resolve(__dirname, '../../client/dist')
+const clientDistPath = fs.existsSync(path.resolve(process.cwd(), 'client/dist'))
+  ? path.resolve(process.cwd(), 'client/dist')
   : path.resolve(process.cwd(), 'dist');
 
 // Normalize request URL for proxy rewrites, Vercel serverless, and Netlify Functions
@@ -34,6 +31,11 @@ app.use((req, _res, next) => {
     req.url = xMatched;
   } else if (xOriginal && xOriginal.startsWith('/api')) {
     req.url = xOriginal;
+  } else if (req.url && req.url.includes('__url=')) {
+    const match = req.url.match(/__url=([^&]+)/);
+    if (match) {
+      req.url = decodeURIComponent(match[1]);
+    }
   }
   next();
 });

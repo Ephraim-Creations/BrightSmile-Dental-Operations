@@ -2,9 +2,11 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-console.log('[Build] 1. Bundling server for Node/Vercel/Netlify...');
-execSync('npx esbuild server/src/index.ts --bundle --platform=node --format=esm --outfile=server/dist/index.js', { stdio: 'inherit' });
-execSync('npx esbuild server/src/index.ts --bundle --platform=node --format=esm --outfile=api/index.js', { stdio: 'inherit' });
+console.log('[Build] 1. Bundling server for Node/Vercel/Netlify with ESM shims...');
+const banner = "import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url); const __dirname = process.cwd(); const __filename = process.cwd() + '/index.js';";
+
+execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=server/dist/index.js`, { stdio: 'inherit' });
+execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/index.js`, { stdio: 'inherit' });
 
 console.log('[Build] 2. Building client Vite application...');
 execSync('npm --prefix client run build', { stdio: 'inherit' });

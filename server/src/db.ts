@@ -1,12 +1,8 @@
 import initSqlJs from 'sql.js';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { hashPassword } from './utils/crypto.js';
 import { wasmBinaryBuffer } from './wasm.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let SQL: any = null;
 let sqliteInstance: any = null;
@@ -128,7 +124,7 @@ export async function initDatabase(): Promise<void> {
       });
 
       // Database file path
-      dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../dental_clinic.sqlite');
+      dbPath = process.env.DATABASE_PATH || path.resolve(process.cwd(), 'dental_clinic.sqlite');
 
       const isServerless = Boolean(
         process.env.VERCEL ||
@@ -138,13 +134,19 @@ export async function initDatabase(): Promise<void> {
       );
 
       if (isServerless && !process.env.DATABASE_PATH) {
-        const tmpDbPath = path.join('/tmp', 'dental_clinic.sqlite');
+        const tmpDbDir = process.platform === 'win32' ? path.resolve(process.cwd(), '.tmp') : '/tmp';
+        try {
+          if (!fs.existsSync(tmpDbDir)) {
+            fs.mkdirSync(tmpDbDir, { recursive: true });
+          }
+        } catch {}
+        const tmpDbPath = path.join(tmpDbDir, 'dental_clinic.sqlite');
         try {
           if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
             fs.copyFileSync(dbPath, tmpDbPath);
           }
         } catch (err) {
-          console.warn('[Database] Could not copy SQLite database to /tmp:', err);
+          // Silently fall back to fresh database in tmpDbPath
         }
         dbPath = tmpDbPath;
       }
