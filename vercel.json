@@ -7,18 +7,12 @@
       "rewrites": [
         { "source": "/(.*)", "destination": "/index.html" }
       ]
-    },
-    "server": {
-      "root": "server",
-      "entrypoint": "dist/index.js"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": {
-        "service": "server"
-      }
+      "destination": "https://brightsmile-api-production.up.railway.app/api/$1"
     },
     {
       "source": "/(.*)",
