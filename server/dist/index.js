@@ -31350,7 +31350,7 @@ var require_fetch = __commonJS({
       let finished = false;
       let cookies;
       let body;
-      let handler = parsed.protocol === "https:" ? https : http;
+      let handler2 = parsed.protocol === "https:" ? https : http;
       let headers = {
         "accept-encoding": "gzip,deflate",
         "user-agent": "nodemailer/" + packageData.version
@@ -31431,7 +31431,7 @@ var require_fetch = __commonJS({
         reqOptions.servername = parsed.hostname;
       }
       try {
-        req = handler.request(reqOptions);
+        req = handler2.request(reqOptions);
       } catch (E) {
         finished = true;
         setImmediate(() => {
@@ -38573,7 +38573,7 @@ var require_smtp_connection = __commonJS({
           }
         }
         if (this.customAuth.has(this._authMethod)) {
-          let handler = this.customAuth.get(this._authMethod);
+          let handler2 = this.customAuth.get(this._authMethod);
           let lastResponse;
           let returned = false;
           let resolve = () => {
@@ -38601,7 +38601,7 @@ var require_smtp_connection = __commonJS({
             returned = true;
             callback(this._formatError(err, "EAUTH", lastResponse, "AUTH " + this._authMethod));
           };
-          let handlerResponse = handler({
+          let handlerResponse = handler2({
             auth: this._auth,
             method: this._authMethod,
             extensions: [].concat(this._supportedExtensions),
@@ -43421,6 +43421,13 @@ if (fs2.existsSync(clientDistPath)) {
     res.sendFile(path2.join(clientDistPath, "index.html"));
   });
 }
+app.use((err, _req, res, _next) => {
+  console.error("[API Error]:", err);
+  res.status(500).json({
+    success: false,
+    error: err?.message || "Internal Server Error"
+  });
+});
 var isServerless = Boolean(
   process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
 );
@@ -43440,10 +43447,14 @@ if (!isServerless && process.env.NODE_ENV !== "test") {
     console.error("Failed to initialize database on startup:", err);
   });
 }
-var index_default = app;
+var handler = (req, res) => {
+  return app(req, res);
+};
+var index_default = handler;
 export {
   app,
-  index_default as default
+  index_default as default,
+  handler
 };
 /*! Bundled license information:
 

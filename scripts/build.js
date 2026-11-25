@@ -7,6 +7,7 @@ const banner = "import { createRequire as __createRequire } from 'module'; const
 
 execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=server/dist/index.js`, { stdio: 'inherit' });
 execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/index.js`, { stdio: 'inherit' });
+execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/[...all].js`, { stdio: 'inherit' });
 
 console.log('[Build] 2. Building client Vite application...');
 execSync('npm --prefix client run build', { stdio: 'inherit' });

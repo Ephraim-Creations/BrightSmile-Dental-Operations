@@ -100,6 +100,15 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
+// Global error handler for uncaught exceptions in routes/middleware
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[API Error]:', err);
+  res.status(500).json({
+    success: false,
+    error: err?.message || 'Internal Server Error',
+  });
+});
+
 const isServerless = Boolean(
   process.env.VERCEL ||
   process.env.NETLIFY ||
@@ -122,5 +131,9 @@ if (!isServerless && process.env.NODE_ENV !== 'test') {
   });
 }
 
-export { app };
-export default app;
+const handler = (req: any, res: any) => {
+  return app(req, res);
+};
+
+export { app, handler };
+export default handler;
