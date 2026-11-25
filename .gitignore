@@ -7,6 +7,9 @@ dist/
 server/.env
 dental_clinic.sqlite-shm
 dental_clinic.sqlite-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 .DS_Store
 *.tsbuildinfo
 .vercel

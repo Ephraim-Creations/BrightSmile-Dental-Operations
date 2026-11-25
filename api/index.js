@@ -43362,6 +43362,12 @@ var app = (0, import_express5.default)();
 var CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 var clientDistPath = fs2.existsSync(path2.resolve(process.cwd(), "client/dist")) ? path2.resolve(process.cwd(), "client/dist") : path2.resolve(process.cwd(), "dist");
 app.use((req, _res, next) => {
+  if (req.url && req.url.startsWith("/.netlify/functions/api")) {
+    req.url = req.url.replace("/.netlify/functions/api", "/api");
+    if (!req.url.startsWith("/api")) {
+      req.url = "/api" + req.url;
+    }
+  }
   const xMatched = req.headers["x-matched-path"];
   const xOriginal = req.headers["x-original-url"];
   if (xMatched && xMatched.startsWith("/api")) {

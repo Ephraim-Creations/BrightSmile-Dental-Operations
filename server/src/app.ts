@@ -22,6 +22,13 @@ const clientDistPath = fs.existsSync(path.resolve(process.cwd(), 'client/dist'))
 
 // Normalize request URL for proxy rewrites, Vercel serverless, and Netlify Functions
 app.use((req, _res, next) => {
+  if (req.url && req.url.startsWith('/.netlify/functions/api')) {
+    req.url = req.url.replace('/.netlify/functions/api', '/api');
+    if (!req.url.startsWith('/api')) {
+      req.url = '/api' + req.url;
+    }
+  }
+
   const xMatched = req.headers['x-matched-path'] as string | undefined;
   const xOriginal = req.headers['x-original-url'] as string | undefined;
 

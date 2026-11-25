@@ -1,4 +1,7 @@
-import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url); const __dirname = process.cwd(); const __filename = process.cwd() + '/index.js';
+import { createRequire as __createRequire } from 'module';
+const require = __createRequire(import.meta.url);
+const __dirname = process.cwd();
+const __filename = process.cwd() + '/index.js';
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -12,11 +15,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
 var __commonJS = (cb, mod) => function __require2() {
-  try {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  } catch (e) {
-    throw mod = 0, e;
-  }
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -15319,7 +15318,7 @@ var require_shams = __commonJS({
         return true;
       }
       var obj = {};
-      var sym = /* @__PURE__ */ Symbol("test");
+      var sym = Symbol("test");
       var symObj = Object(sym);
       if (typeof sym === "string") {
         return false;
@@ -15378,7 +15377,7 @@ var require_has_symbols = __commonJS({
       if (typeof origSymbol("foo") !== "symbol") {
         return false;
       }
-      if (typeof /* @__PURE__ */ Symbol("bar") !== "symbol") {
+      if (typeof Symbol("bar") !== "symbol") {
         return false;
       }
       return hasSymbolSham();
@@ -29420,7 +29419,7 @@ var require_range2 = __commonJS({
 var require_comparator = __commonJS({
   "node_modules/jsonwebtoken/node_modules/semver/classes/comparator.js"(exports, module) {
     "use strict";
-    var ANY = /* @__PURE__ */ Symbol("SemVer ANY");
+    var ANY = Symbol("SemVer ANY");
     var Comparator = class _Comparator {
       static get ANY() {
         return ANY;
@@ -42301,7 +42300,6 @@ var StatementWrapper = class {
   constructor(sql) {
     this.sql = sql;
   }
-  sql;
   get(...params) {
     if (!sqliteInstance) {
       throw new Error("Database is not initialized. Ensure initDatabase() has completed.");
@@ -42392,10 +42390,10 @@ async function initDatabase() {
         wasmBinary
       });
       dbPath = process.env.DATABASE_PATH || path.resolve(process.cwd(), "dental_clinic.sqlite");
-      const isServerless = Boolean(
+      const isServerless2 = Boolean(
         process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
       );
-      if (isServerless && !process.env.DATABASE_PATH) {
+      if (isServerless2 && !process.env.DATABASE_PATH) {
         const tmpDbDir = process.platform === "win32" ? path.resolve(process.cwd(), ".tmp") : "/tmp";
         try {
           if (!fs.existsSync(tmpDbDir)) {
@@ -43362,6 +43360,12 @@ var app = (0, import_express5.default)();
 var CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 var clientDistPath = fs2.existsSync(path2.resolve(process.cwd(), "client/dist")) ? path2.resolve(process.cwd(), "client/dist") : path2.resolve(process.cwd(), "dist");
 app.use((req, _res, next) => {
+  if (req.url && req.url.startsWith("/.netlify/functions/api")) {
+    req.url = req.url.replace("/.netlify/functions/api", "/api");
+    if (!req.url.startsWith("/api")) {
+      req.url = "/api" + req.url;
+    }
+  }
   const xMatched = req.headers["x-matched-path"];
   const xOriginal = req.headers["x-original-url"];
   if (xMatched && xMatched.startsWith("/api")) {
@@ -43429,20 +43433,25 @@ app.use((err, _req, res, _next) => {
 
 // server/src/index.ts
 var PORT = process.env.PORT || 8e3;
-initDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`
+var isServerless = Boolean(
+  process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
+);
+if (!isServerless) {
+  initDatabase().then(() => {
+    app.listen(PORT, () => {
+      console.log(`
 ======================================================`);
-    console.log(`\u{1F9B7} BrightSmile Dental Clinic Full-Stack Application`);
-    console.log(`\u{1F310} Public Website & API Live at: http://localhost:${PORT}`);
-    console.log(`\u{1F6E1}\uFE0F Admin Portal:                  http://localhost:${PORT}/admin`);
-    console.log(`\u{1F512} Strictly Enforced Admin:        ephraimcreations254@gmail.com`);
-    console.log(`======================================================
+      console.log(`\u{1F9B7} BrightSmile Dental Clinic Full-Stack Application`);
+      console.log(`\u{1F310} Public Website & API Live at: http://localhost:${PORT}`);
+      console.log(`\u{1F6E1}\uFE0F Admin Portal:                  http://localhost:${PORT}/admin`);
+      console.log(`\u{1F512} Strictly Enforced Admin:        ephraimcreations254@gmail.com`);
+      console.log(`======================================================
 `);
+    });
+  }).catch((err) => {
+    console.error("Failed to initialize database on startup:", err);
   });
-}).catch((err) => {
-  console.error("Failed to initialize database on startup:", err);
-});
+}
 var index_default = app;
 export {
   app,
