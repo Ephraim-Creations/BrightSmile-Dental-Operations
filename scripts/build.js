@@ -5,9 +5,12 @@ import path from 'path';
 console.log('[Build] 1. Bundling server for Node/Vercel/Netlify with ESM shims...');
 const banner = "import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url); const __dirname = process.cwd(); const __filename = process.cwd() + '/index.js';";
 
+// Standalone runner for npm start / node server/dist/index.js
 execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=server/dist/index.js`, { stdio: 'inherit' });
-execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/index.js`, { stdio: 'inherit' });
-execSync(`npx esbuild server/src/index.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/[...all].js`, { stdio: 'inherit' });
+
+// Serverless function entrypoints for Vercel & Netlify (ZERO port listening, pure request handlers)
+execSync(`npx esbuild server/src/app.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/index.js`, { stdio: 'inherit' });
+execSync(`npx esbuild server/src/app.ts --bundle --platform=node --format=esm "--banner:js=${banner}" --outfile=api/[...all].js`, { stdio: 'inherit' });
 
 console.log('[Build] 2. Building client Vite application...');
 execSync('npm --prefix client run build', { stdio: 'inherit' });

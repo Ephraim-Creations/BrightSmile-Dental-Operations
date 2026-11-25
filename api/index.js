@@ -42248,7 +42248,7 @@ var require_nodemailer = __commonJS({
   }
 });
 
-// server/src/index.ts
+// server/src/app.ts
 var import_express5 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_cookie_parser = __toESM(require_cookie_parser(), 1);
@@ -42392,10 +42392,10 @@ async function initDatabase() {
         wasmBinary
       });
       dbPath = process.env.DATABASE_PATH || path.resolve(process.cwd(), "dental_clinic.sqlite");
-      const isServerless2 = Boolean(
+      const isServerless = Boolean(
         process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
       );
-      if (isServerless2 && !process.env.DATABASE_PATH) {
+      if (isServerless && !process.env.DATABASE_PATH) {
         const tmpDbDir = process.platform === "win32" ? path.resolve(process.cwd(), ".tmp") : "/tmp";
         try {
           if (!fs.existsSync(tmpDbDir)) {
@@ -43356,10 +43356,9 @@ router4.put("/", requireAdminAuth, (req, res) => {
 });
 var settings_default = router4;
 
-// server/src/index.ts
+// server/src/app.ts
 import_dotenv2.default.config();
 var app = (0, import_express5.default)();
-var PORT = process.env.PORT || 8e3;
 var CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 var clientDistPath = fs2.existsSync(path2.resolve(process.cwd(), "client/dist")) ? path2.resolve(process.cwd(), "client/dist") : path2.resolve(process.cwd(), "dist");
 app.use((req, _res, next) => {
@@ -43408,7 +43407,6 @@ app.get(["/api/health", "/health"], (_req, res) => {
   res.json({
     status: "ok",
     service: "BrightSmile Dental Clinic API",
-    port: PORT,
     timestamp: (/* @__PURE__ */ new Date()).toISOString()
   });
 });
@@ -43428,32 +43426,13 @@ app.use((err, _req, res, _next) => {
     error: err?.message || "Internal Server Error"
   });
 });
-var isServerless = Boolean(
-  process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.SERVERLESS
-);
-if (!isServerless && process.env.NODE_ENV !== "test") {
-  initDatabase().then(() => {
-    app.listen(PORT, () => {
-      console.log(`
-======================================================`);
-      console.log(`\u{1F9B7} BrightSmile Dental Clinic Full-Stack Application`);
-      console.log(`\u{1F310} Public Website & API Live at: http://localhost:${PORT}`);
-      console.log(`\u{1F6E1}\uFE0F Admin Portal:                  http://localhost:${PORT}/admin`);
-      console.log(`\u{1F512} Strictly Enforced Admin:        ephraimcreations254@gmail.com`);
-      console.log(`======================================================
-`);
-    });
-  }).catch((err) => {
-    console.error("Failed to initialize database on startup:", err);
-  });
-}
 var handler = (req, res) => {
   return app(req, res);
 };
-var index_default = handler;
+var app_default = handler;
 export {
   app,
-  index_default as default,
+  app_default as default,
   handler
 };
 /*! Bundled license information:
