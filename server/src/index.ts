@@ -21,7 +21,22 @@ const PORT = process.env.PORT || 8000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // Client build directory for serving public frontend
-const clientDistPath = path.resolve(__dirname, '../../client/dist');
+const clientDistPath = fs.existsSync(path.resolve(__dirname, '../../client/dist'))
+  ? path.resolve(__dirname, '../../client/dist')
+  : path.resolve(process.cwd(), 'dist');
+
+// Normalize request URL for proxy rewrites, Vercel serverless, and Netlify Functions
+app.use((req, _res, next) => {
+  const xMatched = req.headers['x-matched-path'] as string | undefined;
+  const xOriginal = req.headers['x-original-url'] as string | undefined;
+
+  if (xMatched && xMatched.startsWith('/api')) {
+    req.url = xMatched;
+  } else if (xOriginal && xOriginal.startsWith('/api')) {
+    req.url = xOriginal;
+  }
+  next();
+});
 
 // Ensure SQLite database is fully initialized before processing any requests
 app.use(async (_req, _res, next) => {
@@ -83,7 +98,14 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
-if (!process.env.VERCEL) {
+const isServerless = Boolean(
+  process.env.VERCEL ||
+  process.env.NETLIFY ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.SERVERLESS
+);
+
+if (!isServerless && process.env.NODE_ENV !== 'test') {
   initDatabase().then(() => {
     app.listen(PORT, () => {
       console.log(`\n======================================================`);

@@ -1,6 +1,6 @@
 import { withLambda } from '@netlify/aws-lambda-compat';
 import serverless from 'serverless-http';
-import app from '../../server/dist/index.js';
+import app from '../../api/index.js';
 
 const handler = serverless(app);
 

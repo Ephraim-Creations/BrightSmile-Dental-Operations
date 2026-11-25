@@ -1,12 +1,17 @@
 [build]
   command = "npm run build"
-  publish = "client/dist"
+  publish = "dist"
   functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
 
-# SPA client-side routing fallback for frontend pages
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -130,7 +130,14 @@ export async function initDatabase(): Promise<void> {
       // Database file path
       dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../dental_clinic.sqlite');
 
-      if (process.env.VERCEL && !process.env.DATABASE_PATH) {
+      const isServerless = Boolean(
+        process.env.VERCEL ||
+        process.env.NETLIFY ||
+        process.env.AWS_LAMBDA_FUNCTION_NAME ||
+        process.env.SERVERLESS
+      );
+
+      if (isServerless && !process.env.DATABASE_PATH) {
         const tmpDbPath = path.join('/tmp', 'dental_clinic.sqlite');
         try {
           if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
